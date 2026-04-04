@@ -3,7 +3,7 @@
 Track software releases and get notified when new versions are available.
 
 ![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)
-![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js)
+![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js)
 ![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)
 
@@ -13,9 +13,11 @@ Track software releases and get notified when new versions are available.
 - **Smart notifications** — notified only when a version actually changes; first discovery is silent
 - **Acknowledge flow** — confirm single or all updates; notification badge disappears, history stays
 - **Manual version control** — edit the known version directly to re-trigger alerts (useful for testing)
-- **Notification channels** — in-app (real-time via SSE), Telegram Bot, Web Push (browser)
+- **Notification channels** — in-app (real-time via SSE), Telegram Bot, Web Push (browser); configurable per software (default: in-app only)
 - **Scheduled checks** — per-software interval: hourly, daily, or weekly
 - **On-demand checks** — force a check for one or all software from the dashboard
+- **Dark mode** — follows system preference by default; override to light or dark via the toolbar toggle (💻 / ☀️ / 🌙)
+- **Multilingual UI** — Italian and English; switch with the IT / EN toggle in the toolbar; preference saved in browser
 
 ## Architecture
 
@@ -95,12 +97,24 @@ Telegram and Web Push can also be configured from the **Settings** page in the U
 Check runs
   ├── version == last_version  →  nothing (already acknowledged)
   ├── last_version == null     →  silent first discovery (badge only)
-  └── version != last_version  →  notify (in-app + Telegram + Web Push)
+  └── version != last_version  →  notify via per-software channels
                                    dashboard badge lights up
 
 User clicks Acknowledge
   └── last_version = latest_found  →  badge off, history kept
 ```
+
+### Per-software notification channels
+
+Each software entry has its own set of enabled channels (configured in the edit form):
+
+| Channel | Default | Requires global setting |
+|---|---|---|
+| In-app (SSE) | ✅ enabled | — |
+| Telegram | ❌ disabled | Telegram token + chat ID in Settings |
+| Web Push | ❌ disabled | Browser subscription in Settings |
+
+A channel must be enabled **both** on the software and in global Settings to trigger.
 
 ## Setting Up Telegram
 
@@ -111,11 +125,26 @@ User clicks Acknowledge
 ## Setting Up Web Push
 
 1. Open **Settings → Web Push**
-2. Click **"Iscriviti alle notifiche browser"** — your browser will ask for permission
+2. Click **Subscribe to browser notifications** — your browser will ask for permission
 3. Enable the toggle and save
 4. Click **Test Web Push** to verify
 
 VAPID keys are auto-generated on first run and stored in the database.
+
+## UI Features
+
+### Dark mode
+
+The toolbar shows a theme toggle (💻 / ☀️ / 🌙) that cycles between:
+- **System** (default) — follows OS/browser preference, updates automatically
+- **Light** — always light
+- **Dark** — always dark
+
+The preference is saved in `localStorage`.
+
+### Language
+
+Click **IT** or **EN** in the toolbar to switch between Italian and English. The preference is saved in `localStorage`.
 
 ## Docker Images
 
