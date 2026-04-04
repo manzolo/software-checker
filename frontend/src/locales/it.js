@@ -35,6 +35,7 @@ export default {
     upToDate: 'aggiornato',
     confirm: '✓ Conferma',
     deleteConfirm: 'Eliminare questo software?',
+    checkError: 'Errore ultimo check',
   },
   notifications: {
     count: '{n} notifiche',

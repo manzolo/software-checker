@@ -35,6 +35,7 @@ export default {
     upToDate: 'up to date',
     confirm: '✓ Confirm',
     deleteConfirm: 'Delete this software?',
+    checkError: 'Last check error',
   },
   notifications: {
     count: '{n} notifications',

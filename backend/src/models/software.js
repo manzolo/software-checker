@@ -77,10 +77,24 @@ async function updateChecked(id, latestFound) {
     `UPDATE software
      SET latest_found = $1,
          last_checked_at = NOW(),
+         last_check_error = NULL,
          updated_at = NOW()
      WHERE id = $2
      RETURNING *`,
     [latestFound, id]
+  );
+  return rows[0] || null;
+}
+
+async function updateCheckError(id, errorMessage) {
+  const { rows } = await pool.query(
+    `UPDATE software
+     SET last_checked_at = NOW(),
+         last_check_error = $1,
+         updated_at = NOW()
+     WHERE id = $2
+     RETURNING *`,
+    [errorMessage, id]
   );
   return rows[0] || null;
 }
@@ -115,4 +129,4 @@ async function findActive() {
   return rows;
 }
 
-module.exports = { findAll, findById, create, update, remove, updateChecked, acknowledge, acknowledgeAll, findActive };
+module.exports = { findAll, findById, create, update, remove, updateChecked, updateCheckError, acknowledge, acknowledgeAll, findActive };

@@ -82,6 +82,11 @@
                 <span v-if="!s.is_active" class="text-xs text-gray-400 dark:text-gray-500">
                   {{ i18n.t('dashboard.inactive') }}
                 </span>
+                <span v-else-if="s.last_check_error"
+                  class="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 px-2 py-0.5 rounded-full font-medium cursor-help"
+                  :title="s.last_check_error">
+                  ⚠️ {{ i18n.t('dashboard.checkError') }}
+                </span>
                 <span v-else-if="isNew(s)"
                   class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">
                   {{ i18n.t('dashboard.newVersion') }}

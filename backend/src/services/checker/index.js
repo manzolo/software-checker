@@ -11,7 +11,13 @@ async function checkSoftware(software) {
   const checker = checkers[software.type];
   if (!checker) throw new Error(`Unknown checker type: ${software.type}`);
 
-  const result = await checker.check(software);
+  let result;
+  try {
+    result = await checker.check(software);
+  } catch (err) {
+    await softwareModel.updateCheckError(software.id, err.message);
+    throw err;
+  }
 
   await softwareModel.updateChecked(software.id, result.version);
 
