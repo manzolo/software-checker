@@ -88,12 +88,43 @@ Wait for containers to become healthy, then verify:
 curl -s http://localhost/api/health
 ```
 
-### 8. Report
+### 8. Deploy to home-server
+
+Ask the user: "Vuoi fare il deploy su home-server adesso?"
+
+If yes:
+
+Wait for the GitHub Actions workflow to finish pushing the images to Docker Hub before proceeding. Poll every 15 seconds:
+
+```bash
+gh run list --repo manzolo/software-checker --limit 1 --json status,conclusion,headBranch \
+  --jq '.[0] | "status: \(.status) conclusion: \(.conclusion)"'
+```
+
+Once the workflow completes successfully, pull the new images and restart on the remote server:
+
+```bash
+ssh root@home-server "cd ~/software-checker && docker compose pull && docker compose up -d"
+```
+
+Then verify the remote health endpoint:
+
+```bash
+ssh root@home-server "curl -s http://localhost/api/health || curl -s http://software-checker-frontend/api/health"
+```
+
+If the user says no, skip this step and mention they can deploy later with:
+```bash
+ssh root@home-server "cd ~/software-checker && docker compose pull && docker compose up -d"
+```
+
+### 9. Report
 
 Print a summary:
 - Tag pushed: `$NEW_TAG`
 - GitHub Release: URL returned by `gh release create`
 - Local stack: rebuilt and running `$NEW_TAG`
+- Remote deploy (home-server): deployed / skipped
 - CI workflow: "Images will be published to Docker Hub by the GitHub Actions workflow — check the Actions tab on github.com/manzolo/software-checker"
 
 ## Prerequisites (remind user if missing)
