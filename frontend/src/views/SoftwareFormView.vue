@@ -21,6 +21,7 @@
           <option value="github">{{ i18n.t('form.typeGithub') }}</option>
           <option value="rss">{{ i18n.t('form.typeRss') }}</option>
           <option value="scrape">{{ i18n.t('form.typeScrape') }}</option>
+          <option value="apt">{{ i18n.t('form.typeApt') }}</option>
         </select>
       </div>
       <div v-if="form.type === 'scrape'">
@@ -28,6 +29,12 @@
         <input v-model="form.css_selector" type="text" :placeholder="i18n.t('form.selectorPlaceholder')"
           class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ i18n.t('form.cssSelectorHint') }}</p>
+      </div>
+      <div v-if="form.type === 'apt'">
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.aptPackage') }}</label>
+        <input v-model="form.css_selector" type="text" :placeholder="i18n.t('form.aptPackagePlaceholder')"
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ i18n.t('form.aptPackageHint') }}</p>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.interval') }}</label>

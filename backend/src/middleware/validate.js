@@ -12,11 +12,14 @@ function validateSoftware(req, res, next) {
   } else {
     try { new URL(url); } catch { errors.push('url must be a valid URL'); }
   }
-  if (!type || !['github', 'scrape', 'rss'].includes(type)) {
-    errors.push('type must be one of: github, scrape, rss');
+  if (!type || !['github', 'scrape', 'rss', 'apt'].includes(type)) {
+    errors.push('type must be one of: github, scrape, rss, apt');
   }
   if (type === 'scrape' && !req.body.css_selector) {
     errors.push('css_selector is required when type is scrape');
+  }
+  if (type === 'apt' && !req.body.css_selector) {
+    errors.push('css_selector (package name) is required when type is apt');
   }
   if (req.body.check_interval && !['hourly', 'daily', 'weekly'].includes(req.body.check_interval)) {
     errors.push('check_interval must be one of: hourly, daily, weekly');

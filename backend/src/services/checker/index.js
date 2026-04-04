@@ -3,9 +3,10 @@
 const github = require('./github');
 const scraper = require('./scraper');
 const rss = require('./rss');
+const apt = require('./apt');
 const softwareModel = require('../../models/software');
 
-const checkers = { github, scrape: scraper, rss };
+const checkers = { github, scrape: scraper, rss, apt };
 
 async function checkSoftware(software) {
   const checker = checkers[software.type];
