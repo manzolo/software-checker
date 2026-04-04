@@ -1,0 +1,38 @@
+<template>
+  <nav class="w-56 bg-gray-900 text-gray-100 flex flex-col min-h-screen shrink-0">
+    <div class="px-5 py-5 border-b border-gray-700">
+      <span class="text-lg font-bold tracking-tight">Software Checker</span>
+    </div>
+    <ul class="flex-1 py-4 space-y-1 px-3">
+      <li v-for="item in navItems" :key="item.to">
+        <RouterLink
+          :to="item.to"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors"
+          :class="$route.path === item.to
+            ? 'bg-indigo-600 text-white'
+            : 'text-gray-300 hover:bg-gray-800 hover:text-white'"
+        >
+          <span class="text-base">{{ item.icon }}</span>
+          {{ item.label }}
+          <span v-if="item.badge && unread > 0"
+            class="ml-auto bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+            {{ unread }}
+          </span>
+        </RouterLink>
+      </li>
+    </ul>
+  </nav>
+</template>
+
+<script setup>
+import { computed } from 'vue'
+import { useNotificationsStore } from '@/stores/notifications.js'
+
+const { unread } = useNotificationsStore()
+
+const navItems = [
+  { to: '/',             icon: '📦', label: 'Dashboard' },
+  { to: '/notifications', icon: '🔔', label: 'Notifiche', badge: true },
+  { to: '/settings',     icon: '⚙️',  label: 'Impostazioni' },
+]
+</script>
