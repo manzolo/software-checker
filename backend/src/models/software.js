@@ -17,17 +17,17 @@ async function findById(id) {
   return rows[0] || null;
 }
 
-async function create({ name, url, type, check_interval, css_selector }) {
+async function create({ name, url, type, check_interval, css_selector, notify_channels }) {
   const { rows } = await pool.query(
-    `INSERT INTO software (name, url, type, check_interval, css_selector)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO software (name, url, type, check_interval, css_selector, notify_channels)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
-    [name, url, type, check_interval || 'daily', css_selector || null]
+    [name, url, type, check_interval || 'daily', css_selector || null, notify_channels || 'inapp']
   );
   return rows[0];
 }
 
-async function update(id, { name, url, type, check_interval, css_selector, is_active, last_version }) {
+async function update(id, { name, url, type, check_interval, css_selector, is_active, last_version, notify_channels }) {
   // last_version: undefined = non toccato, "" = reset a NULL, string = valore esplicito
   const lastVersionValue = last_version === undefined
     ? undefined  // handled below
@@ -42,6 +42,7 @@ async function update(id, { name, url, type, check_interval, css_selector, is_ac
          css_selector = $5,
          is_active = COALESCE($6, is_active),
          last_version = CASE WHEN $7::boolean THEN $8 ELSE last_version END,
+         notify_channels = COALESCE($10, notify_channels),
          updated_at = NOW()
      WHERE id = $9
      RETURNING *`,
@@ -52,6 +53,7 @@ async function update(id, { name, url, type, check_interval, css_selector, is_ac
       last_version !== undefined,  // $7: flag "aggiorna last_version?"
       lastVersionValue,            // $8: valore (può essere null per reset)
       id,
+      notify_channels ?? null,
     ]
   );
   return rows[0] || null;

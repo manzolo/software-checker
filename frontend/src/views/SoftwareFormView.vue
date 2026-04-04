@@ -55,6 +55,24 @@
           Ultima trovata dal checker: <span class="font-mono">{{ form.latest_found || '—' }}</span>
         </p>
       </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Canali di notifica</label>
+        <div class="space-y-1.5">
+          <label class="flex items-center gap-2 text-sm text-gray-500">
+            <input type="checkbox" checked disabled class="rounded border-gray-300 text-indigo-600" />
+            In-app (sempre attivo)
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700">
+            <input v-model="form.notifyTelegram" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
+            Telegram
+          </label>
+          <label class="flex items-center gap-2 text-sm text-gray-700">
+            <input v-model="form.notifyWebpush" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
+            Web Push
+          </label>
+        </div>
+        <p class="text-xs text-gray-400 mt-1">I canali selezionati devono essere abilitati anche nelle Impostazioni globali.</p>
+      </div>
       <div v-if="isEdit">
         <label class="flex items-center gap-2 text-sm text-gray-700">
           <input v-model="form.is_active" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
@@ -97,12 +115,19 @@ const form = ref({
   last_version: '',
   latest_found: '',
   is_active: true,
+  notifyTelegram: false,
+  notifyWebpush: false,
 })
 
 onMounted(async () => {
   if (isEdit.value) {
     const existing = store.list.find(s => s.id === Number(route.params.id))
-    if (existing) Object.assign(form.value, existing)
+    if (existing) {
+      Object.assign(form.value, existing)
+      const channels = (existing.notify_channels || 'inapp').split(',').map(s => s.trim())
+      form.value.notifyTelegram = channels.includes('telegram')
+      form.value.notifyWebpush = channels.includes('webpush')
+    }
   }
 })
 
@@ -113,6 +138,12 @@ async function submit() {
     const payload = { ...form.value }
     if (payload.type !== 'scrape') delete payload.css_selector
     delete payload.latest_found  // campo read-only, non inviare al backend
+    const channels = ['inapp']
+    if (payload.notifyTelegram) channels.push('telegram')
+    if (payload.notifyWebpush) channels.push('webpush')
+    payload.notify_channels = channels.join(',')
+    delete payload.notifyTelegram
+    delete payload.notifyWebpush
     if (isEdit.value) {
       await store.update(Number(route.params.id), payload)
     } else {

@@ -1,0 +1,2 @@
+ALTER TABLE software
+  ADD COLUMN IF NOT EXISTS notify_channels TEXT NOT NULL DEFAULT 'inapp';
