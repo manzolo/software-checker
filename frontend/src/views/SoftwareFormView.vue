@@ -1,92 +1,94 @@
 <template>
   <div class="max-w-xl">
-    <h2 class="text-lg font-semibold mb-6">{{ isEdit ? 'Modifica Software' : 'Aggiungi Software' }}</h2>
-    <form @submit.prevent="submit" class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+    <h2 class="text-lg font-semibold mb-6 text-gray-800 dark:text-gray-100">
+      {{ isEdit ? i18n.t('form.editTitle') : i18n.t('form.addTitle') }}
+    </h2>
+    <form @submit.prevent="submit" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Nome *</label>
-        <input v-model="form.name" type="text" required placeholder="es. Node.js"
-          class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.name') }}</label>
+        <input v-model="form.name" type="text" required :placeholder="i18n.t('form.namePlaceholder')"
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">URL *</label>
-        <input v-model="form.url" type="url" required placeholder="https://github.com/nodejs/node"
-          class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.url') }}</label>
+        <input v-model="form.url" type="url" required :placeholder="i18n.t('form.urlPlaceholder')"
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.type') }}</label>
         <select v-model="form.type" required
-          class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
-          <option value="github">GitHub release</option>
-          <option value="rss">RSS / Atom feed</option>
-          <option value="scrape">Scraping HTML</option>
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="github">{{ i18n.t('form.typeGithub') }}</option>
+          <option value="rss">{{ i18n.t('form.typeRss') }}</option>
+          <option value="scrape">{{ i18n.t('form.typeScrape') }}</option>
         </select>
       </div>
       <div v-if="form.type === 'scrape'">
-        <label class="block text-sm font-medium text-gray-700 mb-1">CSS Selector *</label>
-        <input v-model="form.css_selector" type="text" placeholder=".version-tag"
-          class="w-full rounded-lg border-gray-300 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
-        <p class="text-xs text-gray-400 mt-1">Elemento HTML che contiene il numero di versione</p>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.cssSelector') }}</label>
+        <input v-model="form.css_selector" type="text" :placeholder="i18n.t('form.selectorPlaceholder')"
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ i18n.t('form.cssSelectorHint') }}</p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Frequenza controllo</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{{ i18n.t('form.interval') }}</label>
         <select v-model="form.check_interval"
-          class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500">
-          <option value="hourly">Ogni ora</option>
-          <option value="daily">Ogni giorno (ore 8)</option>
-          <option value="weekly">Ogni settimana (lunedì ore 8)</option>
+          class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500">
+          <option value="hourly">{{ i18n.t('form.intervalHourly') }}</option>
+          <option value="daily">{{ i18n.t('form.intervalDaily') }}</option>
+          <option value="weekly">{{ i18n.t('form.intervalWeekly') }}</option>
         </select>
       </div>
       <div v-if="isEdit">
-        <label class="block text-sm font-medium text-gray-700 mb-1">
-          Versione nota
-          <span class="text-xs font-normal text-gray-400 ml-1">(ultima confermata)</span>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {{ i18n.t('form.lastVersion') }}
+          <span class="text-xs font-normal text-gray-400 dark:text-gray-500 ml-1">({{ i18n.t('form.lastVersionHint') }})</span>
         </label>
         <div class="flex gap-2">
-          <input v-model="form.last_version" type="text" placeholder="es. v25.9.0"
-            class="flex-1 rounded-lg border-gray-300 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
+          <input v-model="form.last_version" type="text" :placeholder="i18n.t('form.versionPlaceholder')"
+            class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
           <button type="button" @click="form.last_version = ''"
-            class="px-3 py-1.5 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-500"
-            title="Azzera (torna a 'non verificato')">
-            Reset
+            class="px-3 py-1.5 text-xs border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+            :title="i18n.t('form.reset')">
+            {{ i18n.t('form.reset') }}
           </button>
         </div>
-        <p class="text-xs text-gray-400 mt-1">
-          Modifica per testare o correggere manualmente. Lascia vuoto per azzerare.
-          Ultima trovata dal checker: <span class="font-mono">{{ form.latest_found || '—' }}</span>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          {{ i18n.t('form.lastVersionDesc') }}
+          {{ i18n.t('form.lastFoundLabel') }} <span class="font-mono">{{ form.latest_found || '—' }}</span>
         </p>
       </div>
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">Canali di notifica</label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ i18n.t('form.notifyChannels') }}</label>
         <div class="space-y-1.5">
-          <label class="flex items-center gap-2 text-sm text-gray-500">
+          <label class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-500">
             <input type="checkbox" checked disabled class="rounded border-gray-300 text-indigo-600" />
-            In-app (sempre attivo)
+            {{ i18n.t('form.notifyInapp') }}
           </label>
-          <label class="flex items-center gap-2 text-sm text-gray-700">
-            <input v-model="form.notifyTelegram" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
-            Telegram
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input v-model="form.notifyTelegram" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+            {{ i18n.t('form.notifyTelegram') }}
           </label>
-          <label class="flex items-center gap-2 text-sm text-gray-700">
-            <input v-model="form.notifyWebpush" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
-            Web Push
+          <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <input v-model="form.notifyWebpush" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+            {{ i18n.t('form.notifyWebpush') }}
           </label>
         </div>
-        <p class="text-xs text-gray-400 mt-1">I canali selezionati devono essere abilitati anche nelle Impostazioni globali.</p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ i18n.t('form.notifyChannelsHint') }}</p>
       </div>
       <div v-if="isEdit">
-        <label class="flex items-center gap-2 text-sm text-gray-700">
-          <input v-model="form.is_active" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
-          Attivo
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <input v-model="form.is_active" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+          {{ i18n.t('form.active') }}
         </label>
       </div>
-      <div v-if="error" class="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{{ error }}</div>
+      <div v-if="error" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-2">{{ error }}</div>
       <div class="flex gap-3 pt-2">
         <button type="submit" :disabled="saving"
           class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg disabled:opacity-50 transition-colors">
-          {{ saving ? 'Salvataggio...' : 'Salva' }}
+          {{ saving ? i18n.t('form.saving') : i18n.t('form.save') }}
         </button>
-        <RouterLink to="/" class="text-sm px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50">
-          Annulla
+        <RouterLink to="/" class="text-sm px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+          {{ i18n.t('form.cancel') }}
         </RouterLink>
       </div>
     </form>
@@ -97,10 +99,12 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useSoftwareStore } from '@/stores/software.js'
+import { useI18nStore } from '@/stores/i18n.js'
 
 const route = useRoute()
 const router = useRouter()
 const store = useSoftwareStore()
+const i18n = useI18nStore()
 
 const isEdit = computed(() => !!route.params.id)
 const saving = ref(false)
@@ -137,7 +141,7 @@ async function submit() {
   try {
     const payload = { ...form.value }
     if (payload.type !== 'scrape') delete payload.css_selector
-    delete payload.latest_found  // campo read-only, non inviare al backend
+    delete payload.latest_found
     const channels = ['inapp']
     if (payload.notifyTelegram) channels.push('telegram')
     if (payload.notifyWebpush) channels.push('webpush')

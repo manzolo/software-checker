@@ -1,91 +1,93 @@
 <template>
   <div class="max-w-xl space-y-6">
-    <h2 class="text-lg font-semibold">Impostazioni</h2>
+    <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">{{ i18n.t('settings.title') }}</h2>
 
     <!-- Telegram -->
-    <section class="bg-white rounded-xl border border-gray-200 p-5">
-      <h3 class="font-medium mb-4">Telegram</h3>
+    <section class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <h3 class="font-medium mb-4 text-gray-800 dark:text-gray-100">{{ i18n.t('settings.telegram') }}</h3>
       <div class="space-y-3">
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Bot Token</label>
+          <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">{{ i18n.t('settings.botToken') }}</label>
           <input v-model="form.telegram_bot_token" type="password" placeholder="123456:ABC-DEF..."
-            class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
         <div>
-          <label class="block text-sm text-gray-600 mb-1">Chat ID</label>
+          <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">{{ i18n.t('settings.chatId') }}</label>
           <input v-model="form.telegram_chat_id" type="text" placeholder="-100123456789"
-            class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
-        <label class="flex items-center gap-2 text-sm text-gray-700">
-          <input v-model="form.notify_telegram" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
-          Abilita notifiche Telegram
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <input v-model="form.notify_telegram" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+          {{ i18n.t('settings.enableTelegram') }}
         </label>
         <button @click="testTelegram" :disabled="testing.telegram"
-          class="text-sm px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">
-          {{ testing.telegram ? 'Invio...' : '▶ Test Telegram' }}
+          class="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50">
+          {{ testing.telegram ? i18n.t('settings.sending') : i18n.t('settings.testTelegram') }}
         </button>
-        <p v-if="feedback.telegram" class="text-xs" :class="feedback.telegram.ok ? 'text-green-600' : 'text-red-600'">
+        <p v-if="feedback.telegram" class="text-xs" :class="feedback.telegram.ok ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
           {{ feedback.telegram.message }}
         </p>
       </div>
     </section>
 
     <!-- Web Push -->
-    <section class="bg-white rounded-xl border border-gray-200 p-5">
-      <h3 class="font-medium mb-4">Web Push</h3>
+    <section class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <h3 class="font-medium mb-4 text-gray-800 dark:text-gray-100">{{ i18n.t('settings.webpush') }}</h3>
       <div class="space-y-3">
-        <label class="flex items-center gap-2 text-sm text-gray-700">
-          <input v-model="form.notify_webpush" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
-          Abilita Web Push
+        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <input v-model="form.notify_webpush" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+          {{ i18n.t('settings.enableWebpush') }}
         </label>
         <div v-if="webpush.supported.value">
           <button v-if="!webpush.subscribed.value" @click="webpush.subscribe()"
             class="text-sm px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
-            Iscriviti alle notifiche browser
+            {{ i18n.t('settings.subscribe') }}
           </button>
           <div v-else class="flex items-center gap-3">
-            <span class="text-sm text-green-600">✓ Iscritto</span>
+            <span class="text-sm text-green-600 dark:text-green-400">{{ i18n.t('settings.subscribed') }}</span>
             <button @click="webpush.unsubscribe()"
-              class="text-sm px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50">
-              Disiscriviti
+              class="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+              {{ i18n.t('settings.unsubscribe') }}
             </button>
           </div>
-          <p v-if="webpush.error.value" class="text-xs text-red-600 mt-1">{{ webpush.error.value }}</p>
+          <p v-if="webpush.error.value" class="text-xs text-red-600 dark:text-red-400 mt-1">{{ webpush.error.value }}</p>
         </div>
-        <p v-else class="text-xs text-gray-400">Web Push non supportato da questo browser</p>
+        <p v-else class="text-xs text-gray-400 dark:text-gray-500">{{ i18n.t('settings.webpushUnsupported') }}</p>
         <button @click="testWebpush" :disabled="testing.webpush"
-          class="text-sm px-3 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50">
-          {{ testing.webpush ? 'Invio...' : '▶ Test Web Push' }}
+          class="text-sm px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50">
+          {{ testing.webpush ? i18n.t('settings.sending') : i18n.t('settings.testWebpush') }}
         </button>
-        <p v-if="feedback.webpush" class="text-xs" :class="feedback.webpush.ok ? 'text-green-600' : 'text-red-600'">
+        <p v-if="feedback.webpush" class="text-xs" :class="feedback.webpush.ok ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
           {{ feedback.webpush.message }}
         </p>
       </div>
     </section>
 
     <!-- In-app -->
-    <section class="bg-white rounded-xl border border-gray-200 p-5">
-      <h3 class="font-medium mb-3">Notifiche in-app</h3>
-      <label class="flex items-center gap-2 text-sm text-gray-700">
-        <input v-model="form.notify_inapp" type="checkbox" class="rounded border-gray-300 text-indigo-600" />
-        Abilita notifiche in-app (sempre consigliato)
+    <section class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5">
+      <h3 class="font-medium mb-3 text-gray-800 dark:text-gray-100">{{ i18n.t('settings.inapp') }}</h3>
+      <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+        <input v-model="form.notify_inapp" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
+        {{ i18n.t('settings.enableInapp') }}
       </label>
     </section>
 
     <button @click="save" :disabled="saving"
       class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg disabled:opacity-50">
-      {{ saving ? 'Salvataggio...' : 'Salva impostazioni' }}
+      {{ saving ? i18n.t('settings.saving') : i18n.t('settings.save') }}
     </button>
-    <p v-if="saved" class="text-sm text-green-600">✓ Salvato</p>
+    <p v-if="saved" class="text-sm text-green-600 dark:text-green-400">{{ i18n.t('settings.saved') }}</p>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useSettingsStore } from '@/stores/settings.js'
+import { useI18nStore } from '@/stores/i18n.js'
 import { useWebPush } from '@/composables/useWebPush.js'
 
 const settingsStore = useSettingsStore()
+const i18n = useI18nStore()
 const webpush = useWebPush()
 
 const form = reactive({
@@ -135,7 +137,7 @@ async function testTelegram() {
   feedback.telegram = null
   try {
     await settingsStore.testTelegram()
-    feedback.telegram = { ok: true, message: 'Messaggio inviato con successo!' }
+    feedback.telegram = { ok: true, message: i18n.t('settings.telegramOk') }
   } catch (err) {
     feedback.telegram = { ok: false, message: err.response?.data?.error || err.message }
   } finally {
@@ -148,7 +150,7 @@ async function testWebpush() {
   feedback.webpush = null
   try {
     await settingsStore.testWebpush()
-    feedback.webpush = { ok: true, message: 'Push inviato!' }
+    feedback.webpush = { ok: true, message: i18n.t('settings.webpushOk') }
   } catch (err) {
     feedback.webpush = { ok: false, message: err.response?.data?.error || err.message }
   } finally {

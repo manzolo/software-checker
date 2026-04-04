@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 flex">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
     <AppSidebar />
     <div class="flex-1 flex flex-col min-w-0">
       <AppNavbar />
@@ -15,9 +15,23 @@ import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
 import { useSSE } from '@/composables/useSSE.js'
 import { useNotificationsStore } from '@/stores/notifications.js'
-import { onMounted } from 'vue'
+import { useThemeStore } from '@/stores/theme.js'
+import { onMounted, onUnmounted } from 'vue'
 
 useSSE()
 const notificationsStore = useNotificationsStore()
-onMounted(() => notificationsStore.fetchCount())
+const themeStore = useThemeStore()
+
+let mq = null
+
+onMounted(() => {
+  notificationsStore.fetchCount()
+  themeStore.apply()
+  mq = window.matchMedia('(prefers-color-scheme: dark)')
+  mq.addEventListener('change', themeStore.apply)
+})
+
+onUnmounted(() => {
+  mq?.removeEventListener('change', themeStore.apply)
+})
 </script>

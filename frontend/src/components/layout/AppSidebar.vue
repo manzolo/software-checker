@@ -1,5 +1,5 @@
 <template>
-  <nav class="w-56 bg-gray-900 text-gray-100 flex flex-col min-h-screen shrink-0">
+  <nav class="w-56 bg-gray-900 dark:bg-gray-950 text-gray-100 flex flex-col min-h-screen shrink-0">
     <div class="px-5 py-5 border-b border-gray-700">
       <span class="text-lg font-bold tracking-tight">Software Checker</span>
     </div>
@@ -27,12 +27,14 @@
 <script setup>
 import { computed } from 'vue'
 import { useNotificationsStore } from '@/stores/notifications.js'
+import { useI18nStore } from '@/stores/i18n.js'
 
 const { unread } = useNotificationsStore()
+const i18n = useI18nStore()
 
-const navItems = [
-  { to: '/',             icon: '📦', label: 'Dashboard' },
-  { to: '/notifications', icon: '🔔', label: 'Notifiche', badge: true },
-  { to: '/settings',     icon: '⚙️',  label: 'Impostazioni' },
-]
+const navItems = computed(() => [
+  { to: '/',              icon: '📦', label: i18n.t('nav.dashboard') },
+  { to: '/notifications', icon: '🔔', label: i18n.t('nav.notifications'), badge: true },
+  { to: '/settings',      icon: '⚙️',  label: i18n.t('nav.settings') },
+])
 </script>
