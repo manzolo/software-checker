@@ -72,6 +72,9 @@ Il comando: calcola versione → chiede conferma → scrive `backend/VERSION` �
 - Il frontend è sulla rete Docker `nginx-net` (external), raggiungibile da nginx proxy manager come `software-checker-frontend:80` — **nessuna porta esposta sull'host**
 - NPM gestisce i virtual host; l'utente configura i proxy manualmente
 
+**Istanza di produzione raggiungibile in LAN:** `http://software-checker.lan/`
+Quando l'utente chiede di aggiungere/modificare software nel tracker, usare SEMPRE `http://software-checker.lan/api/`, mai `http://localhost/`.
+
 Deploy manuale:
 ```bash
 ssh root@home-server "cd ~/software-checker && docker compose pull && docker compose up -d"
