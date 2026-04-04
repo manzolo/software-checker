@@ -10,6 +10,22 @@ If no argument is provided, default to `patch`.
 
 ## Steps — execute in order, stop and report if any step fails
 
+### 0. Check for pending changes
+
+Run: `git status --short`
+
+If there are any uncommitted changes (staged or unstaged):
+- Show the list of modified files to the user
+- Use `AskUserQuestion` to ask:
+  - Question: "Ci sono modifiche non committate. Vuoi committarle prima del bump?"
+  - Header: "Modifiche pendenti"
+  - Options: "Sì, committo ora" / "No, includi nel commit di release" / "Annulla"
+- If "Sì, committo ora":
+  - Ask for a commit message (use `AskUserQuestion` with free text via "Other")
+  - Run: `git add -A && git commit -m "<message>"`
+- If "No, includi nel commit di release": continue (they will be picked up in step 3)
+- If "Annulla": stop immediately
+
 ### 1. Determine the new version
 
 Run: `git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1`
@@ -108,21 +124,29 @@ gh run list --repo manzolo/software-checker --limit 1 --json status,conclusion,h
   --jq '.[0] | "status: \(.status) conclusion: \(.conclusion)"'
 ```
 
-Once the workflow completes successfully, pull the new images and restart on the remote server:
+Once the workflow completes successfully, update `IMAGE_TAG` in the remote `.env`, pull the new images and restart:
 
 ```bash
-ssh root@home-server "cd ~/software-checker && docker compose pull && docker compose up -d"
+ssh root@home-server "cd ~/software-checker && \
+  sed -i 's|^IMAGE_TAG=.*|IMAGE_TAG=<new version>|' .env && \
+  grep -q '^IMAGE_TAG=' .env || echo 'IMAGE_TAG=<new version>' >> .env && \
+  docker compose pull && docker compose up -d"
 ```
+
+Replace `<new version>` with the actual semver string (without `v` prefix), e.g. `0.1.1`.
 
 Then verify the remote health endpoint:
 
 ```bash
-ssh root@home-server "curl -s http://localhost/api/health || curl -s http://software-checker-frontend/api/health"
+ssh root@home-server "curl -s http://software-checker.lan/api/health"
 ```
 
 If the user says no, skip this step and mention they can deploy later with:
 ```bash
-ssh root@home-server "cd ~/software-checker && docker compose pull && docker compose up -d"
+ssh root@home-server "cd ~/software-checker && \
+  sed -i 's|^IMAGE_TAG=.*|IMAGE_TAG=<new version>|' .env && \
+  grep -q '^IMAGE_TAG=' .env || echo 'IMAGE_TAG=<new version>' >> .env && \
+  docker compose pull && docker compose up -d"
 ```
 
 ### 9. Report
