@@ -2,6 +2,7 @@
 
 const router = require('express').Router();
 const softwareModel = require('../models/software');
+const instanceModel = require('../models/instance');
 const checker = require('../services/checker/index');
 const notifier = require('../services/notifier/index');
 const scheduler = require('../services/scheduler');
@@ -91,6 +92,40 @@ router.post('/:id/acknowledge', async (req, res, next) => {
     const row = await softwareModel.acknowledge(req.params.id);
     if (!row) return res.status(404).json({ error: 'Not found' });
     res.json(row);
+  } catch (err) { next(err); }
+});
+
+// --- Instances ---
+
+router.get('/:id/instances', async (req, res, next) => {
+  try {
+    const rows = await instanceModel.findBySoftware(req.params.id);
+    res.json(rows);
+  } catch (err) { next(err); }
+});
+
+router.post('/:id/instances', async (req, res, next) => {
+  try {
+    const { name, deployed_version } = req.body;
+    if (!name || !name.trim()) return res.status(400).json({ error: 'name is required' });
+    const row = await instanceModel.create(req.params.id, { name: name.trim(), deployed_version });
+    res.status(201).json(row);
+  } catch (err) { next(err); }
+});
+
+router.put('/:id/instances/:iid', async (req, res, next) => {
+  try {
+    const row = await instanceModel.update(req.params.iid, req.body);
+    if (!row) return res.status(404).json({ error: 'Not found' });
+    res.json(row);
+  } catch (err) { next(err); }
+});
+
+router.delete('/:id/instances/:iid', async (req, res, next) => {
+  try {
+    const ok = await instanceModel.remove(req.params.iid);
+    if (!ok) return res.status(404).json({ error: 'Not found' });
+    res.status(204).end();
   } catch (err) { next(err); }
 });
 

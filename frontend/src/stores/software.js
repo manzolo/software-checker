@@ -60,5 +60,28 @@ export const useSoftwareStore = defineStore('software', () => {
     return data
   }
 
-  return { list, loading, fetchAll, create, update, remove, checkOne, checkAll, acknowledge, acknowledgeAll }
+  async function createInstance(id, payload) {
+    const { data } = await client.post(`/software/${id}/instances`, payload)
+    const idx = list.value.findIndex(s => s.id === id)
+    if (idx !== -1) list.value[idx].instances = [...(list.value[idx].instances || []), data]
+    return data
+  }
+
+  async function updateInstance(id, iid, payload) {
+    const { data } = await client.put(`/software/${id}/instances/${iid}`, payload)
+    const idx = list.value.findIndex(s => s.id === id)
+    if (idx !== -1) {
+      const iIdx = list.value[idx].instances.findIndex(i => i.id === iid)
+      if (iIdx !== -1) list.value[idx].instances[iIdx] = data
+    }
+    return data
+  }
+
+  async function removeInstance(id, iid) {
+    await client.delete(`/software/${id}/instances/${iid}`)
+    const idx = list.value.findIndex(s => s.id === id)
+    if (idx !== -1) list.value[idx].instances = list.value[idx].instances.filter(i => i.id !== iid)
+  }
+
+  return { list, loading, fetchAll, create, update, remove, checkOne, checkAll, acknowledge, acknowledgeAll, createInstance, updateInstance, removeInstance }
 })

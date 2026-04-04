@@ -4,7 +4,12 @@ const { pool } = require('../config/database');
 
 async function findAll() {
   const { rows } = await pool.query(
-    `SELECT * FROM software ORDER BY name ASC`
+    `SELECT s.*,
+            COALESCE(json_agg(i.* ORDER BY i.name ASC) FILTER (WHERE i.id IS NOT NULL), '[]') AS instances
+     FROM software s
+     LEFT JOIN software_instances i ON i.software_id = s.id
+     GROUP BY s.id
+     ORDER BY s.name ASC`
   );
   return rows;
 }

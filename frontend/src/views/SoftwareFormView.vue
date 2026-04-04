@@ -81,6 +81,84 @@
           {{ i18n.t('form.active') }}
         </label>
       </div>
+
+      <!-- Instances -->
+      <div v-if="isEdit" class="pt-2 border-t border-gray-100 dark:border-gray-700">
+        <div class="flex items-center justify-between mb-3">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ i18n.t('instances.title') }}</label>
+          <button type="button" @click="showAddInstance = !showAddInstance"
+            class="text-xs px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
+            + {{ i18n.t('instances.add') }}
+          </button>
+        </div>
+
+        <!-- Add instance form -->
+        <div v-if="showAddInstance" class="mb-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 space-y-2">
+          <input v-model="newInstance.name" type="text" :placeholder="i18n.t('instances.namePlaceholder')"
+            class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:ring-indigo-500 focus:border-indigo-500" />
+          <div class="flex gap-2">
+            <input v-model="newInstance.deployed_version" type="text" :placeholder="i18n.t('instances.versionPlaceholder')"
+              class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm font-mono focus:ring-indigo-500 focus:border-indigo-500" />
+            <button v-if="form.latest_found" type="button" @click="newInstance.deployed_version = form.latest_found"
+              :title="form.latest_found"
+              class="text-xs px-2.5 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 font-mono whitespace-nowrap">
+              ↑ {{ form.latest_found }}
+            </button>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" @click="addInstance" :disabled="!newInstance.name.trim()"
+              class="text-xs px-3 py-1.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50">
+              {{ i18n.t('instances.save') }}
+            </button>
+            <button type="button" @click="showAddInstance = false; newInstance = { name: '', deployed_version: '' }"
+              class="text-xs px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+              {{ i18n.t('instances.cancel') }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Instance list -->
+        <div v-if="instances.length === 0 && !showAddInstance" class="text-xs text-gray-400 dark:text-gray-500 py-1">
+          {{ i18n.t('instances.noInstances') }}
+        </div>
+        <div v-else class="space-y-1">
+          <div v-for="inst in instances" :key="inst.id"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700">
+            <template v-if="editingInstance?.id === inst.id">
+              <input v-model="editingInstance.name" type="text"
+                class="flex-1 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-xs focus:ring-indigo-500 focus:border-indigo-500 py-1" />
+              <input v-model="editingInstance.deployed_version" type="text"
+                class="w-28 rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-xs font-mono focus:ring-indigo-500 focus:border-indigo-500 py-1" />
+              <button v-if="form.latest_found" type="button"
+                @click="editingInstance.deployed_version = form.latest_found"
+                :title="form.latest_found"
+                class="text-xs px-1.5 py-1 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded hover:bg-gray-100 dark:hover:bg-gray-600 font-mono">
+                ↑
+              </button>
+              <button type="button" @click="saveInstance"
+                class="text-xs px-2 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                ✓
+              </button>
+              <button type="button" @click="editingInstance = null"
+                class="text-xs px-2 py-1 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                ✕
+              </button>
+            </template>
+            <template v-else>
+              <span class="flex-1 text-xs font-medium text-gray-700 dark:text-gray-300">{{ inst.name }}</span>
+              <span class="text-xs font-mono text-gray-500 dark:text-gray-400">{{ inst.deployed_version || '—' }}</span>
+              <button type="button" @click="editingInstance = { ...inst }"
+                class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500">
+                ✏️
+              </button>
+              <button type="button" @click="deleteInstance(inst.id)"
+                class="text-xs px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400 rounded hover:bg-red-100 dark:hover:bg-red-900/50">
+                🗑
+              </button>
+            </template>
+          </div>
+        </div>
+      </div>
       <div v-if="error" class="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded-lg px-3 py-2">{{ error }}</div>
       <div class="flex gap-3 pt-2">
         <button type="submit" :disabled="saving"
@@ -107,6 +185,7 @@ const store = useSoftwareStore()
 const i18n = useI18nStore()
 
 const isEdit = computed(() => !!route.params.id)
+const softwareId = computed(() => Number(route.params.id))
 const saving = ref(false)
 const error = ref(null)
 
@@ -123,17 +202,52 @@ const form = ref({
   notifyWebpush: false,
 })
 
+// Instances state
+const instances = ref([])
+const showAddInstance = ref(false)
+const newInstance = ref({ name: '', deployed_version: '' })
+const editingInstance = ref(null)
+
 onMounted(async () => {
   if (isEdit.value) {
-    const existing = store.list.find(s => s.id === Number(route.params.id))
+    const existing = store.list.find(s => s.id === softwareId.value)
     if (existing) {
       Object.assign(form.value, existing)
       const channels = (existing.notify_channels || 'inapp').split(',').map(s => s.trim())
       form.value.notifyTelegram = channels.includes('telegram')
       form.value.notifyWebpush = channels.includes('webpush')
+      instances.value = [...(existing.instances || [])]
     }
   }
 })
+
+async function addInstance() {
+  if (!newInstance.value.name.trim()) return
+  const inst = await store.createInstance(softwareId.value, {
+    name: newInstance.value.name.trim(),
+    deployed_version: newInstance.value.deployed_version || null,
+  })
+  instances.value.push(inst)
+  newInstance.value = { name: '', deployed_version: '' }
+  showAddInstance.value = false
+}
+
+async function saveInstance() {
+  if (!editingInstance.value) return
+  const updated = await store.updateInstance(softwareId.value, editingInstance.value.id, {
+    name: editingInstance.value.name,
+    deployed_version: editingInstance.value.deployed_version || null,
+  })
+  const idx = instances.value.findIndex(i => i.id === updated.id)
+  if (idx !== -1) instances.value[idx] = updated
+  editingInstance.value = null
+}
+
+async function deleteInstance(iid) {
+  if (!confirm(i18n.t('instances.deleteConfirm'))) return
+  await store.removeInstance(softwareId.value, iid)
+  instances.value = instances.value.filter(i => i.id !== iid)
+}
 
 async function submit() {
   saving.value = true
