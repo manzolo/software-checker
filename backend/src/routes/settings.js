@@ -10,6 +10,10 @@ const SENSITIVE = ['vapid_private_key'];
 router.get('/', async (req, res, next) => {
   try {
     const all = await settingsModel.getAll();
+    if (!all.telegram_bot_token && process.env.TELEGRAM_BOT_TOKEN)
+      all.telegram_bot_token = process.env.TELEGRAM_BOT_TOKEN;
+    if (!all.telegram_chat_id && process.env.TELEGRAM_CHAT_ID)
+      all.telegram_chat_id = process.env.TELEGRAM_CHAT_ID;
     SENSITIVE.forEach(k => { if (all[k]) all[k] = '***'; });
     res.json(all);
   } catch (err) { next(err); }
