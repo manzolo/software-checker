@@ -1,5 +1,5 @@
 ---
-description: Aggiungi un software da monitorare all'istanza di produzione
+description: Aggiungi un software da monitorare (controllami) all'istanza di produzione
 argument-hint: <url> [nome] [hourly|daily|weekly] [css_selector]
 allowed-tools: [Bash, WebFetch]
 ---
