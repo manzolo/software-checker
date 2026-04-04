@@ -1,10 +1,12 @@
 ---
 description: Bump version, publish release to GitHub and deploy to home-server
 argument-hint: patch | minor | major | <semver>
-allowed-tools: [Bash, Read, Write, Edit]
+allowed-tools: [Bash, Read, Write, Edit, AskUserQuestion]
 ---
 
 Perform a version bump and release of software-checker. Argument: $ARGUMENTS (patch | minor | major | explicit semver like 1.2.3)
+
+If no argument is provided, default to `patch`.
 
 ## Steps — execute in order, stop and report if any step fails
 
@@ -24,7 +26,12 @@ Compute NEW version based on the argument:
 
 NEW_TAG = `v<new version>` (e.g. `v0.1.1`)
 
-Show the user: "Bumping: vCURRENT → NEW_TAG" and ask for confirmation before proceeding.
+Use `AskUserQuestion` to ask the user for confirmation before proceeding:
+- Question: "Bumping vCURRENT → NEW_TAG. Procedo?"
+- Header: "Conferma"
+- Options: "Sì" (proceed) / "No" (abort)
+
+If the user answers "No", stop immediately.
 
 ### 2. Update VERSION file
 
