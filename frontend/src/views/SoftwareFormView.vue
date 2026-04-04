@@ -22,6 +22,7 @@
           <option value="rss">{{ i18n.t('form.typeRss') }}</option>
           <option value="scrape">{{ i18n.t('form.typeScrape') }}</option>
           <option value="apt">{{ i18n.t('form.typeApt') }}</option>
+          <option value="dockerhub">{{ i18n.t('form.typeDockerHub') }}</option>
         </select>
       </div>
       <div v-if="form.type === 'scrape'">

@@ -65,6 +65,7 @@
                     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300': s.type === 'rss',
                     'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300': s.type === 'scrape',
                     'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300': s.type === 'apt',
+                    'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300': s.type === 'dockerhub',
                   }">
                   {{ s.type }}
                 </span>

@@ -12,8 +12,8 @@ function validateSoftware(req, res, next) {
   } else {
     try { new URL(url); } catch { errors.push('url must be a valid URL'); }
   }
-  if (!type || !['github', 'scrape', 'rss', 'apt'].includes(type)) {
-    errors.push('type must be one of: github, scrape, rss, apt');
+  if (!type || !['github', 'scrape', 'rss', 'apt', 'dockerhub'].includes(type)) {
+    errors.push('type must be one of: github, scrape, rss, apt, dockerhub');
   }
   if (type === 'scrape' && !req.body.css_selector) {
     errors.push('css_selector is required when type is scrape');

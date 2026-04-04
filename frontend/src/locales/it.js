@@ -115,6 +115,7 @@ export default {
     typeRss: 'RSS / Atom feed',
     typeScrape: 'Scraping HTML',
     typeApt: 'Pacchetto Debian APT',
+    typeDockerHub: 'Immagine Docker Hub',
     aptPackage: 'Nome pacchetto *',
     aptPackagePlaceholder: 'es. pve-manager',
     aptPackageHint: 'Nome esatto del pacchetto Debian da cercare nel file Packages',
