@@ -1,5 +1,5 @@
 ---
-description: Bump version and publish a new release to GitHub and Docker Hub
+description: Bump version, publish release to GitHub and deploy to home-server
 argument-hint: patch | minor | major | <semver>
 allowed-tools: [Bash, Read, Write, Edit]
 ---
