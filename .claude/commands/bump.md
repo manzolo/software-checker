@@ -149,7 +149,40 @@ ssh root@home-server "cd ~/software-checker && \
   docker compose pull && docker compose up -d"
 ```
 
-### 9. Report
+### 9. Cleanup old Docker images
+
+Remove old local Docker images, keeping only the 2 most recent for each service (`software-checker-backend` and `software-checker-frontend`):
+
+```bash
+for image in software-checker-backend software-checker-frontend; do
+  docker images "$image" --format "{{.ID}} {{.CreatedAt}}" \
+    | sort -k2 -r \
+    | awk 'NR>2 {print $1}' \
+    | xargs -r docker rmi -f
+done
+```
+
+Also prune dangling images:
+
+```bash
+docker image prune -f
+```
+
+If the deploy to home-server was done, run the same cleanup remotely:
+
+```bash
+ssh root@home-server "
+  for image in manzolo/software-checker-backend manzolo/software-checker-frontend; do
+    docker images \"\$image\" --format '{{.ID}} {{.CreatedAt}}' \
+      | sort -k2 -r \
+      | awk 'NR>2 {print \$1}' \
+      | xargs -r docker rmi -f
+  done
+  docker image prune -f
+"
+```
+
+### 10. Report
 
 Print a summary:
 - Tag pushed: `$NEW_TAG`
