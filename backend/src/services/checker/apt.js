@@ -42,6 +42,28 @@ function parsePackages(text, packageName) {
   return versions[versions.length - 1];
 }
 
+/**
+ * Parses an Ubuntu meta-release file (changelogs.ubuntu.com/meta-release-lts).
+ * Returns the latest supported release version, stripping the " LTS" suffix.
+ */
+function parseMetaRelease(text) {
+  const blocks = text.split(/\n\n+/);
+  let latestVersion = null;
+
+  for (const block of blocks) {
+    const supportedMatch = block.match(/^Supported:\s*(.+)$/m);
+    if (!supportedMatch || supportedMatch[1].trim() !== '1') continue;
+
+    const verMatch = block.match(/^Version:\s*(.+)$/m);
+    if (!verMatch) continue;
+
+    // Strip trailing " LTS" suffix (e.g. "24.04.4 LTS" → "24.04.4")
+    latestVersion = verMatch[1].trim().replace(/\s+LTS$/i, '');
+  }
+
+  return latestVersion;
+}
+
 async function check(software) {
   const packageName = (software.css_selector || '').trim();
   if (!packageName) {
@@ -54,9 +76,13 @@ async function check(software) {
     responseType: 'text',
   });
 
-  const version = parsePackages(text, packageName);
+  // Detect Ubuntu meta-release format (has "Dist:" fields) vs Debian Packages format
+  const isMetaRelease = /^Dist:\s*/m.test(text);
+  const version = isMetaRelease ? parseMetaRelease(text) : parsePackages(text, packageName);
+
   if (!version) {
-    throw new Error(`Package "${packageName}" not found in ${software.url}`);
+    const target = isMetaRelease ? 'any supported release' : `package "${packageName}"`;
+    throw new Error(`Could not find ${target} in ${software.url}`);
   }
 
   return { version, url: software.url };
