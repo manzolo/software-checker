@@ -21,16 +21,30 @@
         </RouterLink>
       </li>
     </ul>
+    <div class="px-5 py-3 border-t border-gray-700">
+      <span class="text-xs text-gray-500 font-mono">v{{ version }}</span>
+    </div>
   </nav>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useNotificationsStore } from '@/stores/notifications.js'
 import { useI18nStore } from '@/stores/i18n.js'
+import client from '@/api/client.js'
 
 const { unread } = useNotificationsStore()
 const i18n = useI18nStore()
+const version = ref('…')
+
+onMounted(async () => {
+  try {
+    const { data } = await client.get('/health')
+    version.value = data.version || '?'
+  } catch {
+    version.value = '?'
+  }
+})
 
 const navItems = computed(() => [
   { to: '/',              icon: '📦', label: i18n.t('nav.dashboard') },
