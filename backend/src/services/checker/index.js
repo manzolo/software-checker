@@ -25,8 +25,11 @@ async function checkSoftware(software) {
 
   // Confronta con last_version (confermata dall'utente), non con latest_found (cache).
   // - last_version = null → prima scoperta, popola silenziosamente senza notificare
-  // - last_version != result.version → versione cambiata, notifica
-  const isNewVersion = software.last_version !== null && result.version !== software.last_version;
+  // - last_version != result.version → versione cambiata rispetto a quella confermata
+  // - result.version != latest_found → versione non ancora notificata (evita duplicati se l'utente non ha fatto acknowledge)
+  const isNewVersion = software.last_version !== null
+    && result.version !== software.last_version
+    && result.version !== software.latest_found;
 
   return {
     ...result,
