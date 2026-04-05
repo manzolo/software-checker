@@ -42,6 +42,7 @@ export default {
     empty: 'No notifications',
     markAllRead: '✓ Mark all read',
     markRead: 'Read',
+    deleteAll: '🗑 Delete all',
   },
   settings: {
     title: 'Settings',

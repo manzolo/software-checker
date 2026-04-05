@@ -56,4 +56,9 @@ async function remove(id) {
   return rowCount > 0;
 }
 
-module.exports = { create, findAll, countUnread, markRead, markAllRead, remove };
+async function removeAll() {
+  const { rowCount } = await pool.query(`DELETE FROM notifications`);
+  return rowCount;
+}
+
+module.exports = { create, findAll, countUnread, markRead, markAllRead, remove, removeAll };

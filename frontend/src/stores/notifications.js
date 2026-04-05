@@ -35,6 +35,12 @@ export const useNotificationsStore = defineStore('notifications', () => {
     list.value = list.value.filter(n => n.id !== id)
   }
 
+  async function removeAll() {
+    await client.delete('/notifications/all')
+    list.value = []
+    unread.value = 0
+  }
+
   function pushNotification(notification) {
     list.value.unshift(notification)
     unread.value++
@@ -44,5 +50,5 @@ export const useNotificationsStore = defineStore('notifications', () => {
     unread.value = count
   }
 
-  return { list, unread, fetchAll, fetchCount, markRead, markAllRead, remove, pushNotification, setUnread }
+  return { list, unread, fetchAll, fetchCount, markRead, markAllRead, remove, removeAll, pushNotification, setUnread }
 })

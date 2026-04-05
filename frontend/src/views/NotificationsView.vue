@@ -4,10 +4,16 @@
       <p class="text-sm text-gray-500 dark:text-gray-400">
         {{ i18n.t('notifications.count').replace('{n}', store.list.length) }}
       </p>
-      <button v-if="store.unread > 0" @click="store.markAllRead()"
-        class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-        {{ i18n.t('notifications.markAllRead') }}
-      </button>
+      <div class="flex gap-2">
+        <button v-if="store.unread > 0" @click="store.markAllRead()"
+          class="text-sm px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+          {{ i18n.t('notifications.markAllRead') }}
+        </button>
+        <button v-if="store.list.length > 0" @click="store.removeAll()"
+          class="text-sm px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30">
+          {{ i18n.t('notifications.deleteAll') }}
+        </button>
+      </div>
     </div>
 
     <div v-if="store.list.length === 0" class="text-center py-16 text-gray-400 dark:text-gray-500">

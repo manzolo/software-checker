@@ -48,6 +48,13 @@ router.put('/:id/read', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.delete('/all', async (req, res, next) => {
+  try {
+    const count = await notificationModel.removeAll();
+    res.json({ deleted: count });
+  } catch (err) { next(err); }
+});
+
 router.delete('/:id', async (req, res, next) => {
   try {
     const ok = await notificationModel.remove(req.params.id);

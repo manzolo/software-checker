@@ -42,6 +42,7 @@ export default {
     empty: 'Nessuna notifica',
     markAllRead: '✓ Segna tutte lette',
     markRead: 'Letta',
+    deleteAll: '🗑 Elimina tutte',
   },
   settings: {
     title: 'Impostazioni',
