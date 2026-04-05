@@ -21,7 +21,7 @@ app.use(express.json());
 
 const VERSION = (() => {
   try {
-    return fs.readFileSync(path.join(__dirname, '../../VERSION'), 'utf8').trim();
+    return fs.readFileSync(path.join(__dirname, '../VERSION'), 'utf8').trim();
   } catch {
     return 'unknown';
   }
