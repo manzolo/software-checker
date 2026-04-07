@@ -36,6 +36,10 @@ services:
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:admin@example.com}
       PORT: ${PORT:-3000}
+    networks:
+      default:
+        aliases:
+          - ${BACKEND_HOST:-backend}
 
   frontend:
     build: ./frontend
@@ -43,6 +47,9 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    environment:
+      BACKEND_HOST: ${BACKEND_HOST:-backend}
+      BACKEND_PORT: ${PORT:-3000}
     ports:
       - "${HTTP_PORT:-80}:80"
 
