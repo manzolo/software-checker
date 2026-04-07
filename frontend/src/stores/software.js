@@ -37,7 +37,7 @@ export const useSoftwareStore = defineStore('software', () => {
   async function checkOne(id) {
     const { data } = await client.post(`/software/${id}/check`)
     const idx = list.value.findIndex(s => s.id === id)
-    if (idx !== -1) list.value[idx] = { ...list.value[idx], latest_found: data.version, last_checked_at: new Date().toISOString() }
+    if (idx !== -1) list.value[idx] = { ...list.value[idx], latest_found: data.version, last_checked_at: new Date().toISOString(), last_check_error: null }
     return data
   }
 
