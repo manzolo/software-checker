@@ -83,5 +83,13 @@ export const useSoftwareStore = defineStore('software', () => {
     if (idx !== -1) list.value[idx].instances = list.value[idx].instances.filter(i => i.id !== iid)
   }
 
-  return { list, loading, fetchAll, create, update, remove, checkOne, checkAll, acknowledge, acknowledgeAll, createInstance, updateInstance, removeInstance }
+  async function toggleActive(id) {
+    const idx = list.value.findIndex(s => s.id === id)
+    if (idx === -1) return
+    const { data } = await client.put(`/software/${id}`, { is_active: !list.value[idx].is_active })
+    list.value[idx] = data
+    return data
+  }
+
+  return { list, loading, fetchAll, create, update, remove, checkOne, checkAll, acknowledge, acknowledgeAll, createInstance, updateInstance, removeInstance, toggleActive }
 })

@@ -31,6 +31,8 @@ export default {
     colActions: 'Actions',
     never: 'never',
     inactive: 'inactive',
+    enable: 'Enable',
+    disable: 'Disable',
     newVersion: '🆕 New version',
     upToDate: 'up to date',
     confirm: '✓ Confirm',

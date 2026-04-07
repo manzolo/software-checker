@@ -31,6 +31,8 @@ export default {
     colActions: 'Azioni',
     never: 'mai',
     inactive: 'inattivo',
+    enable: 'Abilita',
+    disable: 'Disabilita',
     newVersion: '🆕 Nuova versione',
     upToDate: 'aggiornato',
     confirm: '✓ Conferma',

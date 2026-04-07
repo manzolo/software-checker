@@ -103,9 +103,17 @@
                     class="text-xs px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/60">
                     {{ i18n.t('dashboard.confirm') }}
                   </button>
-                  <button @click="checkOne(s.id)"
-                    class="text-xs px-2 py-1 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
+                  <button @click="checkOne(s.id)" :disabled="!s.is_active"
+                    class="text-xs px-2 py-1 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40">
                     ↻
+                  </button>
+                  <button @click="toggleActive(s.id)"
+                    :title="s.is_active ? i18n.t('dashboard.disable') : i18n.t('dashboard.enable')"
+                    :class="s.is_active
+                      ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/30 dark:hover:text-amber-400'
+                      : 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400'"
+                    class="text-xs px-2 py-1 rounded transition-colors">
+                    {{ s.is_active ? '⏸' : '▶' }}
                   </button>
                   <RouterLink :to="`/software/${s.id}`"
                     class="text-xs px-2 py-1 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600">
@@ -212,6 +220,10 @@ async function acknowledge(id) {
 
 async function acknowledgeAll() {
   await store.acknowledgeAll()
+}
+
+async function toggleActive(id) {
+  await store.toggleActive(id)
 }
 
 async function remove(id) {
