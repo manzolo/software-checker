@@ -110,8 +110,8 @@
                   <button @click="toggleActive(s.id)"
                     :title="s.is_active ? i18n.t('dashboard.disable') : i18n.t('dashboard.enable')"
                     :class="s.is_active
-                      ? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/30 dark:hover:text-amber-400'
-                      : 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-gray-100 hover:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-gray-400'"
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 dark:hover:text-red-400'
+                      : 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/30 dark:hover:text-green-400'"
                     class="text-xs px-2 py-1 rounded transition-colors">
                     {{ s.is_active ? '⏸' : '▶' }}
                   </button>

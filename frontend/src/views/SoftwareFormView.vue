@@ -84,10 +84,18 @@
         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ i18n.t('form.notifyChannelsHint') }}</p>
       </div>
       <div v-if="isEdit">
-        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-          <input v-model="form.is_active" type="checkbox" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600" />
-          {{ i18n.t('form.active') }}
-        </label>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{{ i18n.t('form.active') }}</label>
+        <button type="button" @click="form.is_active = !form.is_active"
+          :class="form.is_active
+            ? 'bg-green-50 border-green-300 dark:bg-green-900/20 dark:border-green-700 text-green-700 dark:text-green-400'
+            : 'bg-red-50 border-red-300 dark:bg-red-900/20 dark:border-red-700 text-red-600 dark:text-red-400'"
+          class="flex items-center gap-3 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors w-full">
+          <span :class="form.is_active ? 'bg-green-500' : 'bg-red-400'" class="w-2.5 h-2.5 rounded-full flex-shrink-0"></span>
+          <span class="flex-1 text-left">
+            {{ form.is_active ? i18n.t('form.activeOn') : i18n.t('form.activeOff') }}
+          </span>
+          <span class="text-xs opacity-60">{{ i18n.t('form.activeToggleHint') }}</span>
+        </button>
       </div>
 
       <!-- Instances -->
