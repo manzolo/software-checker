@@ -25,7 +25,7 @@ export const useSoftwareStore = defineStore('software', () => {
   async function update(id, payload) {
     const { data } = await client.put(`/software/${id}`, payload)
     const idx = list.value.findIndex(s => s.id === id)
-    if (idx !== -1) list.value[idx] = data
+    if (idx !== -1) list.value[idx] = { ...list.value[idx], ...data }
     return data
   }
 
@@ -50,7 +50,7 @@ export const useSoftwareStore = defineStore('software', () => {
   async function acknowledge(id) {
     const { data } = await client.post(`/software/${id}/acknowledge`)
     const idx = list.value.findIndex(s => s.id === id)
-    if (idx !== -1) list.value[idx] = data
+    if (idx !== -1) list.value[idx] = { ...list.value[idx], ...data }
     return data
   }
 
@@ -87,7 +87,7 @@ export const useSoftwareStore = defineStore('software', () => {
     const idx = list.value.findIndex(s => s.id === id)
     if (idx === -1) return
     const { data } = await client.put(`/software/${id}`, { is_active: !list.value[idx].is_active })
-    list.value[idx] = data
+    list.value[idx] = { ...list.value[idx], ...data }
     return data
   }
 
