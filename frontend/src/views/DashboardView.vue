@@ -32,7 +32,7 @@
     </div>
 
     <!-- Table (desktop) -->
-    <div v-else class="hidden md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
+    <div v-else class="hidden xl:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 uppercase text-xs">
           <tr>
@@ -171,10 +171,10 @@
       </table>
     </div>
 
-    <!-- Cards (mobile) -->
-    <div v-if="!store.loading && store.list.length > 0" class="md:hidden space-y-3">
+    <!-- Cards (mobile / tablet) -->
+    <div v-if="!store.loading && store.list.length > 0" class="xl:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div v-for="s in store.list" :key="s.id"
-        class="bg-white dark:bg-gray-800 rounded-xl border p-4"
+        class="bg-white dark:bg-gray-800 rounded-xl border p-4 flex flex-col"
         :class="isNew(s) ? 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 dark:border-gray-700'">
         <!-- Header: name + type -->
         <div class="flex items-start justify-between gap-2 mb-3">
