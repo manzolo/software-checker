@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Actions bar -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
       <p class="text-sm text-gray-500 dark:text-gray-400">
         {{ i18n.t('dashboard.tracked').replace('{n}', store.list.length) }}
       </p>
@@ -31,8 +31,8 @@
       </RouterLink>
     </div>
 
-    <!-- Table -->
-    <div v-else class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <!-- Table (desktop) -->
+    <div v-else class="hidden md:block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-x-auto">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 uppercase text-xs">
           <tr>
@@ -169,6 +169,122 @@
           </template>
         </tbody>
       </table>
+    </div>
+
+    <!-- Cards (mobile) -->
+    <div v-if="!store.loading && store.list.length > 0" class="md:hidden space-y-3">
+      <div v-for="s in store.list" :key="s.id"
+        class="bg-white dark:bg-gray-800 rounded-xl border p-4"
+        :class="isNew(s) ? 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 dark:border-gray-700'">
+        <!-- Header: name + type -->
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <a :href="s.url" target="_blank" class="font-medium text-gray-800 dark:text-gray-100 hover:underline break-words">
+            {{ s.name }}
+          </a>
+          <span class="shrink-0 px-2 py-0.5 rounded text-xs font-medium"
+            :class="{
+              'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300': s.type === 'github',
+              'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300': s.type === 'rss',
+              'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300': s.type === 'scrape',
+              'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300': s.type === 'apt',
+              'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300': s.type === 'dockerhub',
+            }">
+            {{ s.type }}
+          </span>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+          <span v-if="!s.is_active" class="text-xs text-gray-400 dark:text-gray-500">
+            {{ i18n.t('dashboard.inactive') }}
+          </span>
+          <span v-else-if="s.last_check_error"
+            class="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 px-2 py-0.5 rounded-full font-medium"
+            :title="s.last_check_error">
+            ⚠️ {{ i18n.t('dashboard.checkError') }}
+          </span>
+          <span v-else-if="isNew(s)"
+            class="inline-flex items-center gap-1 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">
+            {{ i18n.t('dashboard.newVersion') }}
+          </span>
+          <span v-else class="text-xs text-gray-400 dark:text-gray-500">
+            {{ i18n.t('dashboard.upToDate') }}
+          </span>
+        </div>
+
+        <!-- Versions grid -->
+        <div class="grid grid-cols-3 gap-2 text-sm mb-3">
+          <div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 uppercase mb-0.5">{{ i18n.t('dashboard.colLastKnown') }}</div>
+            <div class="text-gray-600 dark:text-gray-300">{{ s.last_version || '—' }}</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 uppercase mb-0.5">{{ i18n.t('dashboard.colFound') }}</div>
+            <div v-if="s.latest_found" :class="isNew(s) ? 'text-green-700 dark:text-green-400 font-semibold' : 'text-gray-600 dark:text-gray-300'">
+              {{ s.latest_found }}
+            </div>
+            <div v-else class="text-gray-400 dark:text-gray-500">—</div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 uppercase mb-0.5">{{ i18n.t('dashboard.colChecked') }}</div>
+            <div class="text-gray-500 dark:text-gray-400 text-xs">
+              {{ s.last_checked_at ? formatDate(s.last_checked_at) : i18n.t('dashboard.never') }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <button v-if="isNew(s)" @click="acknowledge(s.id)"
+            class="flex-1 min-w-[7rem] text-sm px-3 py-2 bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/60 font-medium">
+            {{ i18n.t('dashboard.confirm') }}
+          </button>
+          <button @click="checkOne(s.id)" :disabled="!s.is_active"
+            class="text-sm px-3 py-2 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-40">
+            ↻
+          </button>
+          <button @click="toggleActive(s.id)"
+            :title="s.is_active ? i18n.t('dashboard.disable') : i18n.t('dashboard.enable')"
+            :class="s.is_active
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
+              : 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400'"
+            class="text-sm px-3 py-2 rounded-lg transition-colors">
+            {{ s.is_active ? '⏸' : '▶' }}
+          </button>
+          <RouterLink :to="`/software/${s.id}`"
+            class="text-sm px-3 py-2 bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
+            ✏️
+          </RouterLink>
+          <button @click="remove(s.id)"
+            class="text-sm px-3 py-2 bg-red-50 text-red-500 dark:bg-red-900/30 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50">
+            🗑
+          </button>
+        </div>
+
+        <!-- Instances -->
+        <div v-if="hasInstances(s)" class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <button @click="toggleExpand(s.id)"
+            class="text-xs text-gray-500 dark:text-gray-400 font-mono tabular-nums">
+            {{ expanded.has(s.id) ? '▲' : '▼' }} {{ s.instances.length }} {{ i18n.t('instances.title').toLowerCase() }}
+          </button>
+          <div v-if="expanded.has(s.id)" class="mt-2 space-y-2">
+            <div v-for="inst in s.instances" :key="inst.id"
+              class="flex items-center justify-between gap-2 text-xs bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2">
+              <span class="text-gray-700 dark:text-gray-300 font-medium">└ {{ inst.name }}</span>
+              <span class="flex items-center gap-2">
+                <span class="font-mono text-gray-600 dark:text-gray-400">{{ inst.deployed_version || '—' }}</span>
+                <span v-if="!inst.deployed_version" class="text-gray-400 dark:text-gray-500">
+                  {{ i18n.t('instances.unknown') }}
+                </span>
+                <span v-else-if="inst.deployed_version === s.latest_found" class="text-green-600 dark:text-green-400">
+                  ✓
+                </span>
+                <span v-else class="text-amber-600 dark:text-amber-400 font-medium">⚠</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
