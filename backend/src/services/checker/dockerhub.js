@@ -31,10 +31,30 @@ function parseImage(url) {
   throw new Error(`Cannot parse Docker Hub image from: ${url}`);
 }
 
+function compareVersions(a, b) {
+  const normalize = (v) => v.replace(/^v/i, '').split('.').map((s) => {
+    const n = parseInt(s, 10);
+    return isNaN(n) ? s : n;
+  });
+  const pa = normalize(a);
+  const pb = normalize(b);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const sa = pa[i] ?? 0;
+    const sb = pb[i] ?? 0;
+    if (typeof sa === 'number' && typeof sb === 'number') {
+      if (sa !== sb) return sa - sb;
+    } else {
+      const cmp = String(sa).localeCompare(String(sb));
+      if (cmp !== 0) return cmp;
+    }
+  }
+  return 0;
+}
+
 async function check(software) {
   const { namespace, image } = parseImage(software.url);
 
-  // Fetch up to 100 tags ordered by last_updated to find the latest stable one
   const { data } = await axios.get(
     `https://hub.docker.com/v2/repositories/${namespace}/${image}/tags`,
     {
@@ -44,16 +64,20 @@ async function check(software) {
     }
   );
 
-  const stableTag = (data.results || [])
+  const stableTags = (data.results || [])
     .map(t => t.name)
-    .find(name => !IGNORED_TAGS.has(name) && STABLE_SEMVER.test(name));
+    .filter(name => !IGNORED_TAGS.has(name) && STABLE_SEMVER.test(name));
 
-  if (!stableTag) {
+  if (stableTags.length === 0) {
     throw new Error(`No stable semver tag found for ${namespace}/${image}`);
   }
 
+  const bestTag = stableTags.reduce((best, tag) =>
+    compareVersions(tag, best) > 0 ? tag : best
+  );
+
   return {
-    version: stableTag,
+    version: bestTag,
     url: `https://hub.docker.com/r/${namespace}/${image}`,
   };
 }

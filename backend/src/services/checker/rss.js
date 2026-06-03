@@ -3,7 +3,30 @@
 const Parser = require('rss-parser');
 
 const parser = new Parser();
-const VERSION_REGEX = /v?(\d+(?:[.\-+]\w+)*)/;
+const VERSION_REGEX = /v?(\d+(?:[.\-]\d+)*(?:[.\-+][a-zA-Z0-9]+)*)/;
+
+// Compare two version strings numerically, segment by segment.
+// Returns >0 if a > b, <0 if a < b, 0 if equal.
+function compareVersions(a, b) {
+  const normalize = (v) => v.replace(/^v/i, '').split(/[.\-]/).map((s) => {
+    const n = parseInt(s, 10);
+    return isNaN(n) ? s : n;
+  });
+  const pa = normalize(a);
+  const pb = normalize(b);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const sa = pa[i] ?? 0;
+    const sb = pb[i] ?? 0;
+    if (typeof sa === 'number' && typeof sb === 'number') {
+      if (sa !== sb) return sa - sb;
+    } else {
+      const cmp = String(sa).localeCompare(String(sb));
+      if (cmp !== 0) return cmp;
+    }
+  }
+  return 0;
+}
 
 async function check(software) {
   const feed = await parser.parseURL(software.url);
@@ -11,15 +34,34 @@ async function check(software) {
     throw new Error(`No items found in feed: ${software.url}`);
   }
 
-  const latest = feed.items[0];
-  const text = latest.title || latest.contentSnippet || '';
-  const match = text.match(VERSION_REGEX);
+  let best = null;
 
-  return {
-    version: match ? match[0] : text.trim().slice(0, 100),
-    url: latest.link || software.url,
-    published_at: latest.pubDate || latest.isoDate,
-  };
+  for (const item of feed.items) {
+    const text = item.title || item.contentSnippet || '';
+    const match = text.match(VERSION_REGEX);
+    if (!match) continue;
+    const version = match[0];
+    if (!best || compareVersions(version, best.version) > 0) {
+      best = {
+        version,
+        url: item.link || software.url,
+        published_at: item.pubDate || item.isoDate,
+      };
+    }
+  }
+
+  if (!best) {
+    // Fallback: return first item text if no version found anywhere
+    const first = feed.items[0];
+    const text = first.title || first.contentSnippet || '';
+    return {
+      version: text.trim().slice(0, 100),
+      url: first.link || software.url,
+      published_at: first.pubDate || first.isoDate,
+    };
+  }
+
+  return best;
 }
 
 module.exports = { check };
