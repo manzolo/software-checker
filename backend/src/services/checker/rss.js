@@ -4,6 +4,7 @@ const Parser = require('rss-parser');
 
 const parser = new Parser();
 const VERSION_REGEX = /v?(\d+(?:[.\-]\d+)*(?:[.\-+][a-zA-Z0-9]+)*)/;
+const STRIP_SUFFIX = /-(ee|ce)$/i;
 
 // Compare two version strings numerically, segment by segment.
 // Returns >0 if a > b, <0 if a < b, 0 if equal.
@@ -40,7 +41,7 @@ async function check(software) {
     const text = item.title || item.contentSnippet || '';
     const match = text.match(VERSION_REGEX);
     if (!match) continue;
-    const version = match[0];
+    const version = match[0].replace(STRIP_SUFFIX, '');
     if (!best || compareVersions(version, best.version) > 0) {
       best = {
         version,
