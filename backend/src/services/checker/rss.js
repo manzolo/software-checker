@@ -5,6 +5,7 @@ const Parser = require('rss-parser');
 const parser = new Parser();
 const VERSION_REGEX = /v?(\d+(?:[.\-]\d+)*(?:[.\-+][a-zA-Z0-9]+)*)/;
 const STRIP_SUFFIX = /-(ee|ce)$/i;
+const PRERELEASE_SUFFIX = /(?:^|[.\-+])(rc|alpha|beta|pre|preview|dev|nightly|canary)\d*(?:$|[.\-+])/i;
 
 // Compare two version strings numerically, segment by segment.
 // Returns >0 if a > b, <0 if a < b, 0 if equal.
@@ -36,12 +37,15 @@ async function check(software) {
   }
 
   let best = null;
+  let foundVersion = false;
 
   for (const item of feed.items) {
     const text = item.title || item.contentSnippet || '';
     const match = text.match(VERSION_REGEX);
     if (!match) continue;
+    foundVersion = true;
     const version = match[0].replace(STRIP_SUFFIX, '');
+    if (PRERELEASE_SUFFIX.test(version)) continue;
     if (!best || compareVersions(version, best.version) > 0) {
       best = {
         version,
@@ -52,6 +56,10 @@ async function check(software) {
   }
 
   if (!best) {
+    if (foundVersion) {
+      throw new Error(`No stable versions found in feed: ${software.url}`);
+    }
+
     // Fallback: return first item text if no version found anywhere
     const first = feed.items[0];
     const text = first.title || first.contentSnippet || '';
