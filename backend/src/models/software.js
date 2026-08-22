@@ -33,10 +33,15 @@ async function create({ name, url, type, check_interval, css_selector, notify_ch
 }
 
 async function update(id, { name, url, type, check_interval, css_selector, is_active, last_version, notify_channels }) {
-  // last_version: undefined = non toccato, "" = reset a NULL, string = valore esplicito
+  // last_version e css_selector: undefined = non toccato, "" = reset a NULL, string = valore esplicito.
+  // Serve per i PUT parziali (es. toggleActive manda solo is_active): senza il flag,
+  // css_selector veniva azzerato e i check apt/scrape si rompevano.
   const lastVersionValue = last_version === undefined
     ? undefined  // handled below
     : (last_version === '' ? null : last_version);
+  const cssSelectorValue = css_selector === undefined
+    ? null  // ignorato: il flag $5 è false
+    : (css_selector === '' ? null : css_selector);
 
   const { rows } = await pool.query(
     `UPDATE software
@@ -44,19 +49,20 @@ async function update(id, { name, url, type, check_interval, css_selector, is_ac
          url = COALESCE($2, url),
          type = COALESCE($3, type),
          check_interval = COALESCE($4, check_interval),
-         css_selector = $5,
-         is_active = COALESCE($6, is_active),
-         last_version = CASE WHEN $7::boolean THEN $8 ELSE last_version END,
-         notify_channels = COALESCE($10, notify_channels),
+         css_selector = CASE WHEN $5::boolean THEN $6 ELSE css_selector END,
+         is_active = COALESCE($7, is_active),
+         last_version = CASE WHEN $8::boolean THEN $9 ELSE last_version END,
+         notify_channels = COALESCE($11, notify_channels),
          updated_at = NOW()
-     WHERE id = $9
+     WHERE id = $10
      RETURNING *`,
     [
       name, url, type, check_interval,
-      css_selector ?? null,
+      css_selector !== undefined,  // $5: flag "aggiorna css_selector?"
+      cssSelectorValue,            // $6: valore (può essere null per reset)
       is_active,
-      last_version !== undefined,  // $7: flag "aggiorna last_version?"
-      lastVersionValue,            // $8: valore (può essere null per reset)
+      last_version !== undefined,  // $8: flag "aggiorna last_version?"
+      lastVersionValue,            // $9: valore (può essere null per reset)
       id,
       notify_channels ?? null,
     ]

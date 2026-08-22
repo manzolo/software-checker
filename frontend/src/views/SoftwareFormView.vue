@@ -270,7 +270,8 @@ async function submit() {
   error.value = null
   try {
     const payload = { ...form.value }
-    if (payload.type !== 'scrape' && payload.type !== 'apt') delete payload.css_selector
+    // '' = reset esplicito lato backend (delete lascerebbe il vecchio valore)
+    if (payload.type !== 'scrape' && payload.type !== 'apt') payload.css_selector = ''
     delete payload.latest_found
     const channels = ['inapp']
     if (payload.notifyTelegram) channels.push('telegram')
